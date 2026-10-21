@@ -60,8 +60,8 @@ class SinyalStok(BaseModel):
 
     @property
     def kunci_idempoten(self) -> str:
-        """Kunci idempoten konsumen TitipO: `item_id + tanggal`."""
-        return f"{self.item_id}|{self.tanggal.isoformat()}"
+        """Kunci idempoten: `item_id + jenis + tanggal` (ADR-0005, ADR-0010 backend)."""
+        return f"{self.item_id}|{self.jenis.value}|{self.tanggal.isoformat()}"
 
 
 def masih_relevan(waktu_sinyal: datetime, sekarang: datetime) -> bool:

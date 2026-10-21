@@ -76,6 +76,7 @@ def test_request_header_metode_path_dan_body(tmp_path):
     assert str(r.url) == "https://titipo.example/sinyal/pedaree-stok"
     assert r.headers["X-Service-Key"] == KUNCI
     assert "authorization" not in r.headers
+    assert r.headers["X-Idempotency-Key"] == "itm_1|stok.menipis|2026-10-14"
     body = json.loads(r.content)
     assert body == {
         "jenis": "stok.menipis", "item_id": "itm_1", "tanggal": "2026-10-14",
@@ -188,3 +189,12 @@ def test_proses_sinyal_duplikat_konsumen_tetap_dicatat_dedup(tmp_path):
     d = DedupProdusen()
     assert proses_sinyal(sinyal(), d, c, T0) is HasilProses.DUPLIKAT_KONSUMEN
     assert not d.boleh_kirim(sinyal(), T0.replace(hour=9))
+
+
+def test_kunci_idempoten_header_berbeda_untuk_jenis_berbeda(tmp_path):
+    rekam = Rekam(resp(201, "dicatat_sebagai_anjuran"), resp(201, "dicatat_sebagai_anjuran"))
+    c, _, _ = klien(rekam, tmp_path)
+    c.kirim(sinyal(jenis="stok.menipis"))
+    c.kirim(sinyal(jenis="stok.habis"))
+    k = [r.headers["X-Idempotency-Key"] for r in rekam.permintaan]
+    assert k[0] != k[1] and k[1].endswith("|2026-10-14") and "stok.habis" in k[1]

@@ -74,3 +74,22 @@ def test_saring_sinyal_meneruskan_lalu_menahan():
     assert saring_sinyal(s, d, T0) is s
     d.catat(s, T0)
     assert saring_sinyal(s, d, T0 + timedelta(hours=1)) is None
+
+
+def test_menipis_0800_lalu_habis_1900_dua_sinyal_dengan_kunci_berbeda():
+    d = DedupProdusen()
+    menipis = sinyal(jenis="stok.menipis")
+    habis = sinyal(jenis="stok.habis")
+    assert d.boleh_kirim(menipis, T0)
+    d.catat(menipis, T0)
+    sore = T0.replace(hour=19)
+    assert d.boleh_kirim(habis, sore)
+    d.catat(habis, sore)
+    assert menipis.kunci_idempoten != habis.kunci_idempoten
+
+
+def test_jenis_sama_dalam_24_jam_tetap_ditekan():
+    d = DedupProdusen()
+    d.catat(sinyal(jenis="stok.habis"), T0)
+    assert not d.boleh_kirim(sinyal(jenis="stok.habis"), T0.replace(hour=19))
+    assert not d.boleh_kirim(sinyal(jenis="stok.habis"), T0 + timedelta(hours=23))
