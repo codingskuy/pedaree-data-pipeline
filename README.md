@@ -24,7 +24,7 @@ Kontrak lintas divisi (detail: `docs/MODUL-PANTRY-RESEP.md`):
 ```text
 backend pedaree (SinyalStok pedaree.stok.v1, JSON Lines)
   -> pekerja sinyal (python, dedup 24 jam)
-  -> POST TitipO /sinyal/pedaree-stok (header X-Service-Key; retry 5/30/300 dtk, lalu DLQ berkas)
+  -> POST TitipO /sinyal/pedaree-stok (header X-Service-Key + X-Idempotency-Key; retry 5/30/300 dtk, lalu DLQ berkas)
 ```
 
 ## Teknologi (versi dikunci)
