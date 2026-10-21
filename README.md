@@ -22,17 +22,15 @@ Kontrak lintas divisi (detail: `docs/MODUL-PANTRY-RESEP.md`):
 ## Aliran data
 
 ```text
-backend pedaree (event mutasi_stok)
-  -> topik kafka pedaree.stok.v1
-  -> pekerja sinyal (python)
-  -> webhook TitipO /sinyal-permintaan
+backend pedaree (SinyalStok pedaree.stok.v1, JSON Lines)
+  -> pekerja sinyal (python, dedup 24 jam)
+  -> POST TitipO /sinyal/pedaree-stok (header X-Service-Key; retry 5/30/300 dtk, lalu DLQ berkas)
 ```
 
 ## Teknologi (versi dikunci)
 
 - Python 3.12.8
-- Apache Kafka 3.9.0 (kompatibel Redpanda)
-- confluent-kafka 2.8.0
+- httpx 0.28.1 (klien HTTP ke TitipO)
 - pydantic 2.10.6
 - PostgreSQL 16.6 (sumber baca)
 
@@ -44,7 +42,9 @@ Lihat `requirements.txt` sebagai sumber kebenaran versi Python.
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-python -m src.pekerja_sinyal
+export TITIPO_BASE_URL=https://titipo.example PEDAREE_SERVICE_KEY=...   # jangan commit kunci
+python -m src.pekerja_sinyal < sinyal.jsonl
+python -m pytest -q
 ```
 
 ## CI
