@@ -1,6 +1,7 @@
 # ADR-0002 — Skema event `pedaree.stok.v1` dan dedup produsen
 
 Status: Diterima | Tanggal: 2026-10-21
+Sebagian diperbarui oleh ADR-0005 (kunci idempoten).
 
 ## Konteks
 
