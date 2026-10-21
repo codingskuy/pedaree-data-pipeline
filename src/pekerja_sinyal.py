@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from enum import Enum
 
 from src.dedup import DedupProdusen
+from src.event_analitik import Penerbit, StatusKirim, sinyal_titipo
 from src.klien_titipo import HasilKirim, KlienTitipo, muat_konfigurasi
 from src.skema import SinyalStok
 
@@ -27,13 +28,32 @@ def saring_sinyal(
     return sinyal if dedup.boleh_kirim(sinyal, sekarang) else None
 
 
+_STATUS_KIRIM = {
+    HasilKirim.DICATAT: StatusKirim.DICATAT,
+    HasilKirim.DUPLIKAT: StatusKirim.DUPLIKAT,
+    HasilKirim.GAGAL_DLQ: StatusKirim.GAGAL,
+}
+
+
 def proses_sinyal(
-    sinyal: SinyalStok, dedup: DedupProdusen, klien: KlienTitipo, sekarang: datetime
+    sinyal: SinyalStok,
+    dedup: DedupProdusen,
+    klien: KlienTitipo,
+    sekarang: datetime,
+    penerbit: Penerbit | None = None,
 ) -> HasilProses:
-    """Dedup, kirim, lalu catat dedup hanya bila TitipO menerima (201/200)."""
+    """Dedup, kirim, lalu catat dedup hanya bila TitipO menerima (201/200).
+
+    Bila `penerbit` diberikan, event analitik `sinyal_titipo` diterbitkan untuk setiap
+    percobaan kirim (bukan untuk sinyal yang ditahan dedup).
+    """
     if saring_sinyal(sinyal, dedup, sekarang) is None:
         return HasilProses.DITAHAN_DEDUP
     hasil = klien.kirim(sinyal)
+    if penerbit is not None:
+        penerbit.terbitkan(
+            sinyal_titipo(sinyal.item_id, sinyal.jenis, _STATUS_KIRIM[hasil], sekarang)
+        )
     if hasil is HasilKirim.GAGAL_DLQ:
         return HasilProses.GAGAL_DLQ
     dedup.catat(sinyal, sekarang)
