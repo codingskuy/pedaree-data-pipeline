@@ -2,7 +2,7 @@
 
 Hanya satu endpoint yang dipanggil: sinyal anjuran restock. Tidak ada jalur
 pembuatan pesanan. Kunci layanan hanya dikirim sebagai header `X-Service-Key`
-dan tidak pernah masuk log, DLQ, atau repr.
+(`X-Idempotency-Key` = `item_id|jenis|tanggal`, ADR-0005) dan tidak pernah masuk log, DLQ, atau repr.
 """
 from __future__ import annotations
 
@@ -79,7 +79,10 @@ class KlienTitipo:
                 r = self._client.post(
                     self._base_url + PATH_SINYAL,
                     json=sinyal.model_dump(mode="json"),
-                    headers={"X-Service-Key": self._service_key},
+                    headers={
+                        "X-Service-Key": self._service_key,
+                        "X-Idempotency-Key": sinyal.kunci_idempoten,
+                    },
                 )
             except httpx.TransportError as e:
                 alasan = f"galat jaringan: {type(e).__name__}"
