@@ -5,6 +5,7 @@ Format mengikuti Keep a Changelog; versi mengikuti TownHall.
 ## [Belum dirilis]
 
 ### Ditambahkan
+- PDR-DATA-004: `src/metrik.py` (stockoutRate, wasteGram/Rupiah, median jam MENIPIS ke HABIS), `src/event_analitik.py` (5 event, penerbit JSONL), hook `sinyal_titipo` di pekerja, `docs/METRIK-AGREGAT.md`, ADR-0004.
 - PDR-DATA-002: `KlienTitipo` (`POST /sinyal/pedaree-stok`, `X-Service-Key`, 201/200, retry 5/30/300 dtk, DLQ JSONL), `proses_sinyal`, CLI stdin, ADR-0003.
 - PDR-DATA-003: model `SinyalStok`, dedup produsen 24 jam, penyaring sinyal, dokumen `docs/SKEMA-EVENT-STOK-V1.md`, ADR-0002.
 - Fondasi AI-dev v1.0.0: `AGENTS.md`, `CLAUDE.md`, ADR-0001, `docs/ARSITEKTUR-AI-DEV.md` (2026-10-14).
