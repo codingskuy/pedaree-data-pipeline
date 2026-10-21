@@ -81,8 +81,15 @@ def test_field_lama_event_ditolak():
         SinyalStok.model_validate(data)
 
 
-def test_kunci_idempoten_item_id_plus_tanggal():
-    assert SinyalStok.model_validate(contoh()).kunci_idempoten == "itm_01J9ZZ|2026-10-14"
+def test_kunci_idempoten_item_id_jenis_tanggal():
+    s = SinyalStok.model_validate(contoh())
+    assert s.kunci_idempoten == f"itm_01J9ZZ|{s.jenis.value}|2026-10-14"
+
+
+def test_kunci_idempoten_berbeda_untuk_jenis_berbeda():
+    a = SinyalStok.model_validate({**contoh(), "jenis": "stok.menipis"})
+    b = SinyalStok.model_validate({**contoh(), "jenis": "stok.habis"})
+    assert a.kunci_idempoten != b.kunci_idempoten
 
 
 def test_payload_wire_cocok_openapi_titipo():

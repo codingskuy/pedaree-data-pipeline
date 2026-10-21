@@ -1,14 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SinyalStokV1",
-  "description": "Sinyal stok Pedaree pedaree.stok.v1 (produsen Pedaree, konsumen tunggal TitipO via POST /sinyal/pedaree-stok). Anjuran restock saja, tidak pernah membuat pesanan otomatis. Relevansi anjuran 48 jam sejak sinyal dibuat. Dedup produsen: maks 1 sinyal per item per jenis per 24 jam (BR-301). Kunci idempoten konsumen: item_id + tanggal.",
+  "description": "Sinyal stok Pedaree pedaree.stok.v1 (produsen Pedaree, konsumen tunggal TitipO via POST /sinyal/pedaree-stok). Anjuran restock saja, tidak pernah membuat pesanan otomatis. Relevansi anjuran 48 jam sejak sinyal dibuat. Dedup produsen: maks 1 sinyal per item per jenis per 24 jam (BR-301). Kunci idempoten: item_id + jenis + tanggal (ADR-0005).",
   "type": "object",
   "additionalProperties": false,
   "required": ["jenis", "item_id", "tanggal", "item", "sisa", "satuan", "kedaluwarsa"],
   "properties": {
     "jenis": {"type": "string", "enum": ["stok.menipis", "stok.habis", "kedaluwarsa.dekat"]},
-    "item_id": {"type": "string", "minLength": 1, "description": "Bagian pertama kunci idempoten"},
-    "tanggal": {"type": "string", "format": "date", "description": "YYYY-MM-DD; bagian kedua kunci idempoten"},
+    "item_id": {"type": "string", "minLength": 1, "description": "Bagian kunci idempoten (item_id + jenis + tanggal)"},
+    "tanggal": {"type": "string", "format": "date", "description": "YYYY-MM-DD; bagian ketiga kunci idempoten"},
     "item": {"type": "string", "minLength": 1},
     "sisa": {"type": "number", "minimum": 0},
     "satuan": {
